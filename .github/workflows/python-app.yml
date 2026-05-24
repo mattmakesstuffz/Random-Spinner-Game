@@ -10,14 +10,13 @@ on:
 permissions:
   contents: write   # needed for release uploads
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ✅ opt into Node.js 24 now
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ✅ opt into Node.js 24
     steps:
-    - uses: actions/checkout@v4   # ✅ already supports Node.js 24
+    - uses: actions/checkout@v4   # ✅ supports Node.js 24
     - name: Set up Python 3.10
       uses: actions/setup-python@v5   # ✅ upgraded from v3 → v5
       with:
@@ -37,6 +36,8 @@ jobs:
   release:
     runs-on: windows-latest   # build exe on Windows runner
     needs: build
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ✅ opt into Node.js 24
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.10
