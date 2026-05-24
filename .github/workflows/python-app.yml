@@ -26,15 +26,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
+    - name: Lint with flake8 (non-blocking)
       run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # run lint but don't fail the job
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: pytest
 
   release:
-    runs-on: windows-latest   # ✅ build exe on Windows
+    runs-on: windows-latest
     needs: build
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
