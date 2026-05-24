@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write   # needed for release uploads
 
 jobs:
   build:
@@ -62,12 +62,15 @@ jobs:
         Import-PfxCertificate -FilePath MoonFlowerCert.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $pwd
         Set-AuthenticodeSignature -FilePath "dist\Random Spinner Gamee.exe" -Certificate $cert
       shell: powershell
-    - name: Commit exe to main branch
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        cp "dist/Random Spinner Gamee.exe" .
-        git add "Random Spinner Gamee.exe"
-        git commit -m "Add signed exe to main branch"
-        git push origin HEAD:main
-      shell: bash
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/Random Spinner Gamee.exe
+        tag_name: v${{ github.run_number }}
+        name: "Random Spinner Gamee Release ${{ github.run_number }}"
+        body: |
+          🚀 Auto-generated release of Random Spinner Gamee
+          - Built with PyInstaller
+          - Signed with self-signed certificate
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
