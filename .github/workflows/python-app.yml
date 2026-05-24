@@ -54,13 +54,13 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --name "Random Spinner Gamee" --icon=ICONBUTFORSHORTCUT.ICO "Random Spinner Gamee.py"
       shell: powershell
-    - name: Sign exe (self-signed certificate)
+    - name: Sign exe with PowerShell
       run: |
-        $cert = New-SelfSignedCertificate -Type CodeSigning -Subject "CN=MoonFlower" -CertStoreLocation Cert:\CurrentUser\My
         $pwd = ConvertTo-SecureString -String "password123" -Force -AsPlainText
+        $cert = New-SelfSignedCertificate -Type CodeSigning -Subject "CN=MoonFlower" -CertStoreLocation Cert:\CurrentUser\My
         Export-PfxCertificate -Cert $cert -FilePath MoonFlowerCert.pfx -Password $pwd
         Import-PfxCertificate -FilePath MoonFlowerCert.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $pwd
-        signtool sign /fd SHA256 /f MoonFlowerCert.pfx /p password123 /tr http://timestamp.digicert.com /td SHA256 "dist\Random Spinner Gamee.exe"
+        Set-AuthenticodeSignature -FilePath "dist\Random Spinner Gamee.exe" -Certificate $cert
       shell: powershell
     - name: Commit exe to main branch
       run: |
