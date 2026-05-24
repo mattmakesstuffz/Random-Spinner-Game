@@ -56,10 +56,10 @@ jobs:
       shell: powershell
     - name: Build exe with PyInstaller
       run: |
-        pyinstaller --onefile --windowed --name "Random Spinner Game" --icon=gameicon.ico "Random Spinner Game.py"
+        pyinstaller --onefile --windowed --name "Random Spinner Gamee" --icon=gameicon.ico "Random Spinner Gamee.py"
       shell: powershell
     - name: Upload exe artifact
       uses: actions/upload-artifact@v4
       with:
-        name: RandomSpinnerGame
-        path: dist/Random Spinner Game.exe
+        name: RandomSpinnerGamee
+        path: dist/Random Spinner Gamee.exe
