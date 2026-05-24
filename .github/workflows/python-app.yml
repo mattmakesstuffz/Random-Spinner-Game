@@ -13,8 +13,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.10
@@ -40,8 +38,6 @@ jobs:
   release:
     runs-on: windows-latest
     needs: build
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.10
@@ -58,8 +54,20 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --name "Random Spinner Gamee" --icon=ICONBUTFORSHORTCUT.ICO "Random Spinner Gamee.py"
       shell: powershell
-    - name: Upload exe artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: RandomSpinnerGamee
-        path: dist/Random Spinner Gamee.exe
+    - name: Sign exe (self-signed certificate)
+      run: |
+        $cert = New-SelfSignedCertificate -Type CodeSigning -Subject "CN=MoonFlower" -CertStoreLocation Cert:\CurrentUser\My
+        $pwd = ConvertTo-SecureString -String "password123" -Force -AsPlainText
+        Export-PfxCertificate -Cert $cert -FilePath MoonFlowerCert.pfx -Password $pwd
+        Import-PfxCertificate -FilePath MoonFlowerCert.pfx -CertStoreLocation Cert:\CurrentUser\My -Password $pwd
+        signtool sign /fd SHA256 /f MoonFlowerCert.pfx /p password123 /tr http://timestamp.digicert.com /td SHA256 "dist\Random Spinner Gamee.exe"
+      shell: powershell
+    - name: Commit exe to main branch
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        cp "dist/Random Spinner Gamee.exe" .
+        git add "Random Spinner Gamee.exe"
+        git commit -m "Add signed exe to main branch"
+        git push origin HEAD:main
+      shell: bash
